@@ -6,6 +6,7 @@ import Footer from './components/Footer'
 import CartPage from './pages/CartPage'
 import HomePage from './pages/HomePage'
 import ProductsPage from './pages/ProductsPage'
+import ProductDetailsPage from './pages/ProductDetailsPage'
 
 function App() {
   const [products] = useState([
@@ -61,7 +62,10 @@ function App() {
 
   // Save cart changes to localStorage
   useEffect(() => {
-    localStorage.setItem('shopping_cart', JSON.stringify(cart));
+    try {
+      localStorage.setItem('shopping_cart', JSON.stringify(cart)); }
+    catch (error) {
+      console.warn('Could not save cart to localStorage:', error); }
   }, [cart]);
 
   // Functions to add/remove items from cart
@@ -80,6 +84,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/products" element={<ProductsPage products={products} addToCart={addToCart} />} />
+        <Route path="/products/:id" element={<ProductDetailsPage products={products} addToCart={addToCart} />} />
         <Route path="/cart" element={<CartPage cart={cart} removeFromCart={removeFromCart} />} />
       </Routes>
       <Footer storeName="Component Corner" description="Providing top-quality tech accessories and hardware components for your mobile setup." contactEmail="support@componentcorner.com" contactPhone="(555) 019-2834" copyright="Component Corner Inc"/>   
