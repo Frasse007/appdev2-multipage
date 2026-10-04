@@ -1,4 +1,5 @@
 import CartItem from '../components/CartItem'
+import './CartPage.css'
 
 function CartPage({ cart, removeFromCart }) {
     const cartTotal = cart.reduce((total, item) => total + item.price, 0);
