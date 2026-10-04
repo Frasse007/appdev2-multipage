@@ -1,10 +1,11 @@
 import './App.css'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Header from './components/Header'
-import Hero from './components/Hero'
-import ProductCard from './components/ProductCard'
-import CartItem from './components/CartItem'
 import Footer from './components/Footer'
+import CartPage from './pages/CartPage'
+import HomePage from './pages/HomePage'
+import ProductsPage from './pages/ProductsPage'
 
 function App() {
   const [products] = useState([
@@ -52,9 +53,18 @@ function App() {
     }
   ]);
 
-  // Initialize cart and functions to add/remove items from it
-  const [cart, setCart] = useState([]);
+  // Load initial cart from localStorage
+  const [cart, setCart] = useState(() => {
+    const savedCart = localStorage.getItem('shopping_cart');
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
 
+  // Save cart changes to localStorage
+  useEffect(() => {
+    localStorage.setItem('shopping_cart', JSON.stringify(cart));
+  }, [cart]);
+
+  // Functions to add/remove items from cart
   const addToCart = (product) => {
     const itemToAdd = { ...product, cartItemId: Date.now() + Math.random() };
     setCart((prevCart) => [...prevCart, itemToAdd]);
@@ -64,57 +74,16 @@ function App() {
     setCart((prevCart) => prevCart.filter((item) => item.cartItemId !== cartItemId));
   };
 
-  const cartTotal = cart.reduce((total, item) => total + item.price, 0);
-
   return (
-    <>
-      <header>
-          <Header storeName="Component Corner" products="Products" contact="Contact" about="About" cartCount={cart.length}/>
-      </header>
-
-      <main>
-
-        <div className='hero-section'>
-          <Hero title="Welcome to Component Corner!" subtitle="Your one stop shop for all your phone needs" heroImage="https://placehold.co/1200x400/8b00b8/ffffff?text=Phone+Shop" callToAction="Shop Now"></Hero>
-        </div>
-
-        <div className='product-grid'>
-          {products.map(product => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onAddToCart={addToCart}
-            />
-          ))}
-        </div>
-        
-        <section className="cart-section">
-          <h2>Shopping Cart</h2>
-
-          {cart.length === 0 ? (
-            <p className="empty-cart-message">Your cart is currently empty.</p>
-          ) : (
-            <div className="cart-container-list">
-              {cart.map((item) => (
-                <CartItem 
-                  key={item.cartItemId} 
-                  item={item} 
-                  onRemove={removeFromCart} 
-                />
-              ))}
-              <div className="cart-summary">
-                <h3>Total: ${cartTotal.toFixed(2)}</h3>
-              </div>
-            </div>
-          )}
-        </section>
-
-      </main>
-
-      <footer>
-        <Footer storeName="Component Corner" description="Providing top-quality tech accessories and hardware components for your mobile setup." contactEmail="support@componentcorner.com" contactPhone="(555) 019-2834" copyright="Component Corner Inc"/>
-      </footer>    
-    </>
+    <BrowserRouter>
+      <Header storeName="Component Corner" products="Products" contact="Contact" about="About" cartCount={cart.length}/>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/products" element={<ProductsPage products={products} addToCart={addToCart} />} />
+        <Route path="/cart" element={<CartPage cart={cart} removeFromCart={removeFromCart} />} />
+      </Routes>
+      <Footer storeName="Component Corner" description="Providing top-quality tech accessories and hardware components for your mobile setup." contactEmail="support@componentcorner.com" contactPhone="(555) 019-2834" copyright="Component Corner Inc"/>   
+    </BrowserRouter>
   );
 }
 
