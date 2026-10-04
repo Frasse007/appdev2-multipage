@@ -56,16 +56,22 @@ function App() {
 
   // Load initial cart from localStorage
   const [cart, setCart] = useState(() => {
-    const savedCart = localStorage.getItem('shopping_cart');
-    return savedCart ? JSON.parse(savedCart) : [];
+    try {
+      const savedCart = localStorage.getItem('shopping_cart');
+      return savedCart ? JSON.parse(savedCart) : [];
+    } catch (error) {
+      console.warn('Could not load cart from localStorage:', error);
+      return [];
+    }
   });
 
   // Save cart changes to localStorage
   useEffect(() => {
     try {
-      localStorage.setItem('shopping_cart', JSON.stringify(cart)); }
-    catch (error) {
-      console.warn('Could not save cart to localStorage:', error); }
+      localStorage.setItem('shopping_cart', JSON.stringify(cart));
+    } catch (error) {
+      console.warn('Could not save cart to localStorage:', error);
+    }
   }, [cart]);
 
   // Functions to add/remove items from cart
